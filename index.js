@@ -28,7 +28,7 @@ async function getMessages() {
     messages = await Model.find()
     await console.log('Mensagens carregadas!')
     io.emit('message', { type: 'serverUpdate' })
-    messages.push({ type: 'serverUpdate' })
+    await messages.push({ type: 'serverUpdate' })
     io.emit('messagesUpdate', messages)
     console.log(messages)
 }
