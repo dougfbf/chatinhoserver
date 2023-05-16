@@ -47,10 +47,16 @@ io.on('connection', (socket) => {
     })
 })
 
+function keepAlive() {
+    console.log('Tô vivo carai')
+    io.emit('nada')
+}
+
 app.get('/', (req, res) => {
     res.send('sai daq curioso')
 })
 
 server.listen(port, () => {
     console.log(`Servidor iniciado na porta: ${port}`)
+    setInterval(keepAlive, 60000)
 })
