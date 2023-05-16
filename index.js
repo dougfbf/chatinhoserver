@@ -40,7 +40,7 @@ io.on('connection', (socket) => {
     })
     socket.on('disconnect', () => {
         connectedUsers = connectedUsers.filter(item => item.name !== user.name)
-        console.log(`${user.name} saiu!`)
+
         console.log(connectedUsers)
         messages.push('message', {user: user.name, type: 'left', date: getDate()})
         io.emit('messagesUpdate', messages)
