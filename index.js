@@ -10,6 +10,7 @@ const mongoose = require('mongoose')
 const Model = require('./models/model.js')
 
 mongoose.connect('mongodb+srv://Chatinho:Wawdst7!@chatinho.0rkobbh.mongodb.net/?retryWrites=true&w=majority')
+//mongoose.connect('mongodb://127.0.0.1:27017')
 const db = mongoose.connection
 
 db.on('error', (error) => {
@@ -26,9 +27,10 @@ let messages = []
 
 async function getMessages() {
     messages = await Model.find()
-    console.log('Mensagens carregadas!')
-    await messages.push({ type: 'serverUpdate' })
-    await io.emit('messagesUpdate', messages)
+    await console.log('Mensagens carregadas!')
+    io.emit('message', { type: 'serverUpdate' })
+    messages.push({ type: 'serverUpdate' })
+    io.emit('messagesUpdate', messages)
     console.log(messages)
 }
 
@@ -45,7 +47,7 @@ function getDate() {
 
 io.on('connection', async (socket) => {
     let user
-    await io.emit('messagesUpdate', messages)
+    io.emit('messagesUpdate', messages)
     socket.on('clientConnection', async (data) => {
         user = { name: data.user }
         const dataToSave = new Model({
@@ -64,6 +66,7 @@ io.on('connection', async (socket) => {
         io.emit('usersUpdate', connectedUsers)
     })
     socket.on('message', async (data) => {
+        io.emit('msgSound', {name: user.name})
         const dict = { user: user.name, text: data.text, type: 'msg', date: getDate() }
         const dataToSave = new Model(dict)
         console.log(`Msg added! ${dataToSave}`)
