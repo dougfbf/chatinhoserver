@@ -26,11 +26,10 @@ let messages = []
 
 async function getMessages() {
     messages = await Model.find()
-    await console.log('Mensagens carregadas!')
-    await io.emit('message', { type: 'serverUpdate' })
+    console.log('Mensagens carregadas!')
     await messages.push({ type: 'serverUpdate' })
     await io.emit('messagesUpdate', messages)
-    await console.log(messages)
+    console.log(messages)
 }
 
 getMessages()
@@ -46,7 +45,7 @@ function getDate() {
 
 io.on('connection', async (socket) => {
     let user
-    io.emit('messagesUpdate', messages)
+    await io.emit('messagesUpdate', messages)
     socket.on('clientConnection', async (data) => {
         user = { name: data.user }
         const dataToSave = new Model({
