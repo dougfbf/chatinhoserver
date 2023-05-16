@@ -5,6 +5,7 @@ const http = require('http')
 const server = http.createServer(app)
 const { Server } = require('socket.io')
 const io = new Server(server)
+const axios = require('axios')
 
 const port = process.env.PORT || 3000
 let connectedUsers = []
@@ -48,12 +49,15 @@ io.on('connection', (socket) => {
 })
 
 function keepAlive() {
-    console.log('Tô vivo carai')
-    io.emit('nada')
+    axios.get('https://chatinhoserver.onrender.com').then((response) => {
+        console.log(response)
+    }).catch((error) => {
+        console.log(error.message)
+    })
 }
 
 app.get('/', (req, res) => {
-    res.send('sai daq curioso')
+    res.send('Estou vivo!')
 })
 
 server.listen(port, () => {
