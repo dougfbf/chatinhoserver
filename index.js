@@ -1,4 +1,3 @@
-const { kStringMaxLength } = require('buffer')
 const express = require('express')
 const app = express()
 const http = require('http')
@@ -6,43 +5,84 @@ const server = http.createServer(app)
 const { Server } = require('socket.io')
 const io = new Server(server)
 const axios = require('axios')
+const mongoose = require('mongoose')
+
+const Model = require('./models/model.js')
+
+mongoose.connect('mongodb+srv://Chatinho:Wawdst7!@chatinho.0rkobbh.mongodb.net/?retryWrites=true&w=majority')
+const db = mongoose.connection
+
+db.on('error', (error) => {
+    console.log(error)
+})
+
+db.once('connected', () => {
+    console.log('Conectado ao banco de dados!')
+})
 
 const port = process.env.PORT || 3000
 let connectedUsers = []
 let messages = []
 
+async function getMessages() {
+    messages = await Model.find()
+    await console.log('Mensagens carregadas!')
+    io.emit('message', { type: 'serverUpdate' })
+    messages.push({ type: 'serverUpdate' })
+    io.emit('messagesUpdate', messages)
+    console.log(messages)
+}
+
+getMessages()
+
 function getDate() {
     let date = new Date()
-    date.setHours(date.getHours())
+    date.setHours(date.getHours() - 4)
     const hour = date.getHours().toString().padStart(2, '0');
     const minute = date.getMinutes().toString().padStart(2, '0');
     const second = date.getSeconds().toString().padStart(2, '0');
     return `${hour}:${minute}:${second}`
 }
 
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
     let user
     io.emit('messagesUpdate', messages)
-    socket.on('clientConnection', (data) => {
-        user = {name: data.user}
-        messages.push('message', {user: user.name, type: 'joined', date: getDate()})
+    socket.on('clientConnection', async (data) => {
+        user = { name: data.user }
+        const dataToSave = new Model({
+            user: user.name,
+            text: 'nada',
+            type: 'joined',
+            date: getDate()
+        })
+        await dataToSave.save()
+        console.log(`joinLog added! ${dataToSave}`)
+        messages.push(dataToSave)
         io.emit('messagesUpdate', messages)
         connectedUsers.push(user)
         console.log(`${user.name} entrou!`)
         console.log(connectedUsers)
         io.emit('usersUpdate', connectedUsers)
     })
-    socket.on('message', (data) => {
-        console.log(data)
-        messages.push(data)
+    socket.on('message', async (data) => {
+        const dict = { user: user.name, text: data.text, type: 'msg', date: getDate() }
+        const dataToSave = new Model(dict)
+        console.log(`Msg added! ${dataToSave}`)
+        await dataToSave.save()
+        console.log(dataToSave)
+        messages.push(dataToSave)
         io.emit('messagesUpdate', messages)
         console.log(messages)
     })
-    socket.on('disconnect', () => {
+    socket.on('disconnect', async () => {
         connectedUsers = connectedUsers.filter(item => item.name !== user.name)
-
         console.log(connectedUsers)
-        messages.push('message', {user: user.name, type: 'left', date: getDate()})
+        const dict = { user: user.name, text: 'nada', type: 'left', date: getDate() }
+        const dataToSave = new Model(dict)
+        console.log(`Msg added! ${dataToSave}`)
+        await dataToSave.save()
+        console.log(dataToSave)
+        messages.push(dataToSave)
         io.emit('messagesUpdate', messages)
         io.emit('usersUpdate', connectedUsers)
     })
