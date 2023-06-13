@@ -9,8 +9,8 @@ const mongoose = require('mongoose')
 
 const Model = require('./models/model.js')
 
-//mongoose.connect('mongodb+srv://Chatinho:Wawdst7!@chatinho.0rkobbh.mongodb.net/?retryWrites=true&w=majority')
-mongoose.connect('mongodb://127.0.0.1:27017')
+mongoose.connect('mongodb+srv://Chatinho:Wawdst7!@chatinho.0rkobbh.mongodb.net/?retryWrites=true&w=majority')
+//mongoose.connect('mongodb://127.0.0.1:27017')
 const db = mongoose.connection
 
 db.on('error', (error) => {
