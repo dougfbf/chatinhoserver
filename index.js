@@ -9,8 +9,8 @@ const mongoose = require('mongoose')
 
 const Model = require('./models/model.js')
 
-mongoose.connect('mongodb+srv://Chatinho:Wawdst7!@chatinho.0rkobbh.mongodb.net/?retryWrites=true&w=majority')
-//mongoose.connect('mongodb://127.0.0.1:27017')
+//mongoose.connect('mongodb+srv://Chatinho:Wawdst7!@chatinho.0rkobbh.mongodb.net/?retryWrites=true&w=majority')
+mongoose.connect('mongodb://127.0.0.1:27017')
 const db = mongoose.connection
 
 db.on('error', (error) => {
@@ -74,6 +74,21 @@ io.on('connection', async (socket) => {
         messages.push(dataToSave)
         io.emit('messagesUpdate', messages)
         console.log(messages)
+        mensagem = data.text
+        if (mensagem.toLowerCase() === '/advice' || mensagem.toLowerCase() === '/advice ' || mensagem.toLowerCase() === '/conselho' || mensagem.toLowerCase() === '/conselho ') {
+            axios.get('https://api.adviceslip.com/advice').then((res) => {
+                let response = res.data
+                let dataSave = new Model({
+                    user: 'user.name',
+                    text: response.slip.advice,
+                    type: 'advice',
+                    date: getDate()
+                })
+                messages.push(dataSave)
+                io.emit('messagesUpdate', messages)
+            }
+            )
+        }
     })
     socket.on('disconnect', async () => {
         connectedUsers = connectedUsers.filter(item => item.name !== user.name)
