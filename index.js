@@ -28,8 +28,8 @@ let messages = []
 async function getMessages() {
     messages = await Model.find()
     await console.log('Mensagens carregadas!')
-    io.emit('message', { type: 'serverUpdate' })
-    messages.push({ type: 'serverUpdate' })
+    io.emit('message', { type: 'serverUpdate', date: new Date() })
+    messages.push({ type: 'serverUpdate', date: new Date() })
     io.emit('messagesUpdate', messages)
     console.log(messages)
 }
@@ -59,7 +59,6 @@ io.on('connection', async (socket) => {
         await dataToSave.save()
         console.log(`joinLog added! ${dataToSave}`)
         messages.push(dataToSave)
-        io.emit('messagesUpdate', messages)
         connectedUsers.push(user)
         console.log(`${user.name} entrou!`)
         console.log(connectedUsers)
@@ -85,7 +84,6 @@ io.on('connection', async (socket) => {
         await dataToSave.save()
         console.log(dataToSave)
         messages.push(dataToSave)
-        io.emit('messagesUpdate', messages)
         io.emit('usersUpdate', connectedUsers)
     })
 })
