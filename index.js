@@ -37,12 +37,7 @@ async function getMessages() {
 getMessages()
 
 function getDate() {
-    let date = new Date()
-    date.setHours(date.getHours() - 4)
-    const hour = date.getHours().toString().padStart(2, '0');
-    const minute = date.getMinutes().toString().padStart(2, '0');
-    const second = date.getSeconds().toString().padStart(2, '0');
-    return `${hour}:${minute}:${second}`
+    return new Date()
 }
 
 io.on('connection', async (socket) => {
@@ -66,7 +61,7 @@ io.on('connection', async (socket) => {
     })
     socket.on('message', async (data) => {
         io.emit('msgSound', {name: user.name})
-        const dict = { user: user.name, text: data.text, type: 'msg', date: getDate() }
+        const dict = { user: user.name, text: data.text, type: 'msg', date: new Date() }
         const dataToSave = new Model(dict)
         console.log(`Msg added! ${dataToSave}`)
         await dataToSave.save()
@@ -76,7 +71,7 @@ io.on('connection', async (socket) => {
         console.log(messages)
         mensagem = data.text
         if (mensagem.toLowerCase() === '/advice' || mensagem.toLowerCase() === '/advice ' || mensagem.toLowerCase() === '/conselho' || mensagem.toLowerCase() === '/conselho ') {
-            axios.get('https://api.adviceslip.com/advice').then((res) => {
+            axios.get('https://api.adviceslip.com/advice').then(async (res) => {
                 let response = res.data
                 let dataSave = new Model({
                     user: 'user.name',
@@ -84,6 +79,7 @@ io.on('connection', async (socket) => {
                     type: 'advice',
                     date: getDate()
                 })
+                await dataSave.save()
                 messages.push(dataSave)
                 io.emit('messagesUpdate', messages)
             }
