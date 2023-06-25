@@ -15,8 +15,8 @@ const options = {
     dbName: 'Chatinho'
 }
 
-//mongoose.connect('mongodb+srv://Chatinho:Wawdst7!@chatinho.0rkobbh.mongodb.net/?retryWrites=true&w=majority')
-mongoose.connect('mongodb://127.0.0.1:27017', options)
+mongoose.connect('mongodb+srv://Chatinho:Wawdst7!@chatinho.0rkobbh.mongodb.net/?retryWrites=true&w=majority')
+//mongoose.connect('mongodb://127.0.0.1:27017', options)
 const db = mongoose.connection
 
 db.on('error', (error) => {
