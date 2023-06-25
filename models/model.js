@@ -17,6 +17,9 @@ const dataSchema = new mongoose.Schema({
         required: true,
         type: String
     }
+}, {
+    versionKey: false,
+    collection: 'Chatinho'
 })
 
 module.exports = mongoose.model('Data', dataSchema)

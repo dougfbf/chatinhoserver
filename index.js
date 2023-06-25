@@ -9,8 +9,14 @@ const mongoose = require('mongoose')
 
 const Model = require('./models/model.js')
 
-mongoose.connect('mongodb+srv://Chatinho:Wawdst7!@chatinho.0rkobbh.mongodb.net/?retryWrites=true&w=majority')
-//mongoose.connect('mongodb://127.0.0.1:27017')
+const options = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    dbName: 'Chatinho'
+}
+
+//mongoose.connect('mongodb+srv://Chatinho:Wawdst7!@chatinho.0rkobbh.mongodb.net/?retryWrites=true&w=majority')
+mongoose.connect('mongodb://127.0.0.1:27017', options)
 const db = mongoose.connection
 
 db.on('error', (error) => {
@@ -70,8 +76,12 @@ io.on('connection', async (socket) => {
         io.emit('messagesUpdate', messages)
         console.log(messages)
         mensagem = data.text
-        if (mensagem.toLowerCase() === '/advice' || mensagem.toLowerCase() === '/advice ' || mensagem.toLowerCase() === '/conselho' || mensagem.toLowerCase() === '/conselho ') {
-            axios.get('https://api.adviceslip.com/advice').then(async (res) => {
+        if (mensagem.toLowerCase() === '/advice' ||
+            mensagem.toLowerCase() === '/advice ' ||
+            mensagem.toLowerCase() === '/conselho' ||
+            mensagem.toLowerCase() === '/conselho ') {
+            axios.get('https://api.adviceslip.com/advice')
+            .then(async (res) => {
                 let response = res.data
                 let dataSave = new Model({
                     user: 'user.name',
