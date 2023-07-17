@@ -33,9 +33,10 @@ let messages = []
 
 async function getMessages() {
     messages = await Model.find()
+    console.log(messages)
     await console.log('Mensagens carregadas!')
     io.emit('message', { type: 'serverUpdate', date: new Date() })
-    messages.push({ type: 'serverUpdate', date: new Date() })
+    messages.push({ type: 'serverUpdate', date: new Date().toISOString() })
     io.emit('messagesUpdate', messages)
     console.log(messages)
 }
@@ -43,16 +44,18 @@ async function getMessages() {
 getMessages()
 
 function getDate() {
-    return new Date()
+    return new Date().toISOString()
 }
 
 io.on('connection', async (socket) => {
     let user
     io.emit('messagesUpdate', messages)
     socket.on('clientConnection', async (data) => {
-        user = { name: data.user }
+        user = { name: data.name, userImage: data.userImage }
+        console.log(user)
         const dataToSave = new Model({
             user: user.name,
+            userImage: user.userImage,
             text: 'nada',
             type: 'joined',
             date: getDate()
@@ -66,8 +69,8 @@ io.on('connection', async (socket) => {
         io.emit('usersUpdate', connectedUsers)
     })
     socket.on('message', async (data) => {
-        io.emit('msgSound', {name: user.name})
-        const dict = { user: user.name, text: data.text, type: 'msg', date: new Date() }
+        io.emit('msgSound', {name: data.user})
+        const dict = { user: data.user, userImage: data.userImage, text: data.text, type: 'msg', date: new Date().toISOString() }
         const dataToSave = new Model(dict)
         console.log(`Msg added! ${dataToSave}`)
         await dataToSave.save()
@@ -99,7 +102,7 @@ io.on('connection', async (socket) => {
     socket.on('disconnect', async () => {
         connectedUsers = connectedUsers.filter(item => item.name !== user.name)
         console.log(connectedUsers)
-        const dict = { user: user.name, text: 'nada', type: 'left', date: getDate() }
+        const dict = { user: user.name, userImage: user.userImage, text: 'nada', type: 'left', date: getDate() }
         const dataToSave = new Model(dict)
         console.log(`Msg added! ${dataToSave}`)
         await dataToSave.save()

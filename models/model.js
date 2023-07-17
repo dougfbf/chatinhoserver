@@ -5,6 +5,10 @@ const dataSchema = new mongoose.Schema({
         required: true,
         type: String
     },
+    userImage: {
+        required: true,
+        type: String
+    },
     text: {
         required: true,
         type: String
